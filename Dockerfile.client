@@ -1,0 +1,17 @@
+FROM ubuntu:24.04
+
+# Setup environment variables
+ENV HOME=/root \
+    DEBIAN_FRONTEND=noninteractive \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
+    LC_ALL=C.UTF-8
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      x11-apps && \
+    rm -rf /var/lib/apt/lists/*
+
+# --- Requirement done --- #
+
+CMD ["xeyes"]
