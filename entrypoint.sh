@@ -5,7 +5,7 @@ export DISPLAY=${DISPLAY:-":0.0"}
 export PORT=${PORT:-"8080"}
 
 export WIDTH=${WIDTH:-"1920"}
-export HEIHGT=${HEIGHT:-"1080"}
+export HEIGHT=${HEIGHT:-"1080"}
 export DEPTH=${DEPTH:-"24"}
 export BITPERPIXEL=${BITPERPIXEL:="32"}
 
