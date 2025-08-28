@@ -35,7 +35,7 @@ services:
   test:
     image: kohs100/docker-xpra-client:latest
     environment:
-     - DISPLAY=xpra:0.0
+      - DISPLAY=xpra:0.0
     networks:
       - inetwork
     depends_on:
