@@ -3,7 +3,9 @@ networks:
 
 services:
   xpra:
-    image: kohs100/docker-xpra:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - 8081:8080
     environment:
@@ -33,7 +35,9 @@ services:
     ]
 
   test:
-    image: kohs100/docker-xpra-client:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.client
     environment:
       - DISPLAY=xpra:0.0
     networks:

@@ -9,9 +9,85 @@ ENV HOME=/root \
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      x11-apps && \
+      lxterminal \
+      i3-wm \
+      i3status \
+      i3lock \
+      dmenu \
+      curl \
+      software-properties-common
+
+RUN curl -o "/usr/share/keyrings/xpra.asc" https://xpra.org/xpra.asc && \
+    curl -o "/etc/apt/sources.list.d/xpra.sources" https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/noble/xpra.sources
+
+RUN add-apt-repository universe && \
+    apt-get update && \
+    apt-get install -y xpra && \
     rm -rf /var/lib/apt/lists/*
+
+# Create i3 config
+RUN mkdir -p /root/.config/i3 && \
+    echo 'set $mod Mod4\n\
+font pango:DejaVu Sans Mono 8\n\
+\n\
+floating_modifier $mod\n\
+\n\
+bindsym $mod+Return exec lxterminal\n\
+bindsym $mod+Shift+q kill\n\
+bindsym $mod+d exec dmenu_run\n\
+\n\
+bindsym $mod+j focus left\n\
+bindsym $mod+k focus down\n\
+bindsym $mod+l focus up\n\
+bindsym $mod+semicolon focus right\n\
+\n\
+bindsym $mod+Left focus left\n\
+bindsym $mod+Down focus down\n\
+bindsym $mod+Up focus up\n\
+bindsym $mod+Right focus right\n\
+\n\
+bindsym $mod+Shift+j move left\n\
+bindsym $mod+Shift+k move down\n\
+bindsym $mod+Shift+l move up\n\
+bindsym $mod+Shift+semicolon move right\n\
+\n\
+bindsym $mod+h split h\n\
+bindsym $mod+v split v\n\
+bindsym $mod+f fullscreen toggle\n\
+\n\
+bindsym $mod+s layout stacking\n\
+bindsym $mod+w layout tabbed\n\
+bindsym $mod+e layout toggle split\n\
+\n\
+bindsym $mod+Shift+space floating toggle\n\
+bindsym $mod+space focus mode_toggle\n\
+\n\
+bindsym $mod+1 workspace number 1\n\
+bindsym $mod+2 workspace number 2\n\
+bindsym $mod+3 workspace number 3\n\
+bindsym $mod+4 workspace number 4\n\
+bindsym $mod+5 workspace number 5\n\
+\n\
+bindsym $mod+Shift+1 move container to workspace number 1\n\
+bindsym $mod+Shift+2 move container to workspace number 2\n\
+bindsym $mod+Shift+3 move container to workspace number 3\n\
+bindsym $mod+Shift+4 move container to workspace number 4\n\
+bindsym $mod+Shift+5 move container to workspace number 5\n\
+\n\
+bindsym $mod+Shift+c reload\n\
+bindsym $mod+Shift+r restart\n\
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m You pressed the exit shortcut. Do you really want to exit i3? This will end your X session. -B Yes, exit i3 i3-msg exit"\n\
+\n\
+bar {\n\
+    status_command i3status\n\
+}' > /root/.config/i3/config
 
 # --- Requirement done --- #
 
-CMD ["xeyes"]
+ARG CACHEBUST=1
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 8080
+ENTRYPOINT ["/entrypoint.sh"]

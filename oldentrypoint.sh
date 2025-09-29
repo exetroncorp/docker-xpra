@@ -1,5 +1,5 @@
 #!/bin/bash
-# Run as coder user (non-root)
+# Run as root
 
 export DISPLAY=${DISPLAY:-":0.0"}
 export PORT=${PORT:-"8080"}
@@ -14,19 +14,8 @@ export SCREEN="${WIDTH}x${HEIGHT}x${DEPTH}+${BITPERPIXEL}"
 echo "Port: $PORT"
 echo "DISPLAY: $DISPLAY"
 echo "Screen: $SCREEN"
-echo "Starting xpra as user: $(whoami)"
 echo "Starting xpra with following arguments: $@"
 
-# Start PCManFM in background after xpra starts
-start_pcmanfm() {
-    xterm &
-    sleep 3
-    DISPLAY=$DISPLAY pcmanfm
-}
-
-
-
-# Start xpra
 xpra start \
   --bind-tcp=0.0.0.0:$PORT \
   --html=on \
@@ -35,13 +24,8 @@ xpra start \
   --dbus-control=no \
   --dbus-launch=no \
   --mdns=no \
-  --daemon=no --start=plank \
-  --uid=$(id -u) \
-  --gid=$(id -g) \
+  --daemon=no \
   $@ \
   --xvfb="Xvfb +extension GLX +extension Composite +extension RANDR +extension RENDER -extension DOUBLE-BUFFER -screen 0 $SCREEN -ac -listen tcp -noreset -dpi 96x96" \
   $DISPLAY
-
-
-  
 

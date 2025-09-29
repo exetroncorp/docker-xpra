@@ -1,0 +1,93 @@
+# Picom Configuration - Cosmic Style
+
+# Backend
+backend = "glx";
+glx-no-stencil = true;
+glx-copy-from-front = false;
+
+# Shadows
+shadow = true;
+shadow-radius = 12;
+shadow-offset-x = -15;
+shadow-offset-y = -15;
+shadow-opacity = 0.3;
+
+shadow-exclude = [
+    "! name~=''",
+    "name = 'Notification'",
+    "name = 'Plank'",
+    "name = 'Docky'",
+    "name = 'Kupfer'",
+    "name = 'xfce4-notifyd'",
+    "name = 'cpt_frame_window'",
+    "name *= 'VLC'",
+    "name *= 'compton'",
+    "name *= 'picom'",
+    "name *= 'Chromium'",
+    "name *= 'Chrome'",
+    "class_g = 'Firefox' && argb",
+    "class_g = 'Conky'",
+    "class_g = 'Kupfer'",
+    "class_g = 'Synapse'",
+    "class_g ?= 'Notify-osd'",
+    "class_g ?= 'Cairo-dock'",
+    "_GTK_FRAME_EXTENTS@:c",
+    "_NET_WM_STATE@:32a *= '_NET_WM_STATE_HIDDEN'"
+];
+
+# Opacity
+inactive-opacity = 0.95;
+active-opacity = 1.0;
+frame-opacity = 1.0;
+inactive-opacity-override = false;
+
+opacity-rule = [
+    "100:class_g = 'firefox'",
+    "100:class_g = 'Thunderbird'"
+];
+
+# Blur
+blur-background = true;
+blur-method = "dual_kawase";
+blur-strength = 3;
+blur-background-exclude = [
+    "window_type = 'dock'",
+    "window_type = 'desktop'",
+    "_GTK_FRAME_EXTENTS@:c"
+];
+
+# Fading
+fading = true;
+fade-delta = 4;
+fade-in-step = 0.03;
+fade-out-step = 0.03;
+fade-exclude = [ ];
+
+# Rounded corners
+corner-radius = 8;
+rounded-corners-exclude = [
+    "window_type = 'dock'",
+    "window_type = 'desktop'",
+    "class_g = 'Polybar'"
+];
+
+# Other
+mark-wmwin-focused = true;
+mark-ovredir-focused = true;
+detect-rounded-corners = true;
+detect-client-opacity = true;
+refresh-rate = 0;
+vsync = true;
+unredir-if-possible = false;
+focus-exclude = [ ];
+detect-transient = true;
+detect-client-leader = true;
+
+# Window type settings
+wintypes: {
+    tooltip = { fade = true; shadow = false; opacity = 0.85; focus = true; };
+    dock = { shadow = false; };
+    dnd = { shadow = false; };
+    popup_menu = { opacity = 0.95; };
+    dropdown_menu = { opacity = 0.95; };
+};
