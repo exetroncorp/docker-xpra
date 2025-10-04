@@ -26,6 +26,9 @@ start_pcmanfm() {
 
 
 
+# Set wallpaper
+feh --bg-scale /home/coder/wallpaper.png &
+
 # Start xpra
 xpra start \
   --bind-tcp=0.0.0.0:$PORT \

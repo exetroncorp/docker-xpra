@@ -31,8 +31,18 @@ RUN apt-get update && apt-get install -y \
     qttools5-dev-tools \
     # Java runtime for IntelliJ
     default-jre \
-    # Text editor (gedit as notepad++ equivalent)
-    gedit \
+    # Additional terminals and tools
+    lxterminal \
+    qps \
+    glances \
+    zsh \
+    sysstat \
+    atop \
+    hdparm \
+    fio \
+    dstat \
+    nmon \
+    jq \
     # Archive tools for extracting downloads
     tar \
     unzip \
@@ -55,7 +65,8 @@ RUN wget -q https://xpra.org/gpg.asc -O- | apt-key add - && \
 
 # Create non-root user
 RUN useradd -m -s /bin/bash coder && \
-    echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+    echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    chsh -s /bin/zsh coder
 
 # Create directories
 RUN mkdir -p /home/coder/.local/share/applications \
@@ -95,15 +106,82 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install IntelliJ IDEA
+RUN wget -q -O /tmp/idea.tar.gz "https://download.jetbrains.com/idea/ideaIU-2025.2.3.tar.gz?_gl=1*1g9iqqu*_gcl_au*MzUxNzMzNTYwLjE3NTc0NTI3ODkuMTI5MTAzNDQ1OS4xNzU4Mzg5NDkzLjE3NTgzODk0OTM.*FPAU*MzUxNzMzNTYwLjE3NTc0NTI3ODk.*_ga*NTc2NzcwMDM5LjE3NTgxMzM4MDA.*_ga_9J976DJZ68*czE3NTk2MDEwMDckbzgkZzEkdDE3NTk2MDEwMTQkajUzJGwwJGgw" && \
+    tar -xzf /tmp/idea.tar.gz -C /opt && \
+    rm /tmp/idea.tar.gz && \
+    find /opt -name "idea.sh" -exec ln -sf {} /usr/local/bin/idea \;
+
+# Create IntelliJ IDEA desktop file
+RUN cat > /home/coder/.local/share/applications/intellij-idea.desktop << 'EOF'
+[Desktop Entry]
+Version=1.0
+Name=IntelliJ IDEA
+Comment=Integrated Development Environment
+Exec=/usr/local/bin/idea
+Icon=idea
+Terminal=false
+Type=Application
+Categories=Development;IDE;
+EOF
+
+# Create Glances desktop file
+RUN cat > /home/coder/.local/share/applications/glances.desktop << 'EOF'
+[Desktop Entry]
+Version=1.0
+Name=Glances
+Comment=Live system monitor
+Exec=lxterminal -e glances
+Icon=utilities-terminal
+Terminal=false
+Type=Application
+Categories=System;Monitor;
+EOF
+
+# Create IOSTAT desktop file
+RUN cat > /home/coder/.local/share/applications/iostat.desktop << 'EOF'
+[Desktop Entry]
+Version=1.0
+Name=IOSTAT
+Comment=Disk I/O statistics
+Exec=lxterminal -e iostat -x 1
+Icon=utilities-terminal
+Terminal=false
+Type=Application
+Categories=System;Monitor;
+EOF
+
+# Create Disk Benchmark desktop file
+RUN cat > /home/coder/.local/share/applications/disk-benchmark.desktop << 'EOF'
+[Desktop Entry]
+Version=1.0
+Name=Disk Benchmark
+Comment=Comprehensive disk performance analysis
+Exec=lxterminal -e /home/coder/scripts/disk_benchmark.sh
+Icon=utilities-terminal
+Terminal=false
+Type=Application
+Categories=System;Monitor;
+EOF
+
+# Install VSCode Insiders
+RUN wget -q -O /tmp/vscode.deb "https://code.visualstudio.com/sha/download?build=insider&os=linux-deb-x64" && \
+    dpkg -i /tmp/vscode.deb && \
+    rm /tmp/vscode.deb
+
 # Copy installation scripts
 COPY install_qt_designer.sh /home/coder/scripts/
 COPY install_intellij.sh /home/coder/scripts/
 COPY install_postman.sh /home/coder/scripts/
+COPY disk_benchmark.sh /home/coder/scripts/
 COPY i3_config /home/coder/.config/i3/config
 COPY polybar_config /home/coder/.config/polybar/config
 COPY rofi_config /home/coder/.config/rofi/config.rasi
 COPY picom_config /home/coder/.config/picom/picom.conf
 COPY polybar_launch.sh /home/coder/.config/polybar/launch.sh
+
+# Download wallpaper for html5 background
+RUN wget -q -O /home/coder/wallpaper.png "https://picsum.photos/1920/1080?random=1"
 
 # Make scripts executable
 RUN chmod +x /home/coder/scripts/*.sh
@@ -118,6 +196,10 @@ RUN chmod 755 /home/coder && \
 # Switch to non-root user
 USER coder
 WORKDIR /home/coder
+
+# Install Oh My Zsh with agnoster theme
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
+    sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/' ~/.zshrc
 
 # Copy entrypoint script
 COPY entrypoint.sh /home/coder/

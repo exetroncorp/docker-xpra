@@ -17,6 +17,11 @@ services:
       # - DEPTH=24
       # - BITPERPIXEL=32
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
     networks:
       - inetwork
     healthcheck:
