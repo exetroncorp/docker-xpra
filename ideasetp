@@ -1,0 +1,297 @@
+# IntelliJ IDEA 2025.2.3 Setup Guide - Rootless Container
+
+## Quick Start
+
+### 1. Basic Setup (Default Configuration)
+
+```bash
+# Make scripts executable
+chmod +x intellij_setup.sh
+
+# Run with default settings
+bash ./intellij_setup.sh
+```
+
+### 2. Custom Configuration Setup
+
+```bash
+# Source the configuration file first
+source ./intellij-config.env
+
+# Override any settings as needed
+export PROXY_PORT="8080"
+export GITLAB_URL="https://gitlab.internal.company.com"
+export VM_XMX="7g"
+
+# Run setup
+bash ./intellij_setup.sh
+```
+
+### 3. Install a Specific Plugin
+
+```bash
+# Set environment first
+source ./intellij-config.env
+
+# Add plugin configuration to the script and run, or use:
+bash -c '
+  source ./intellij-config.env
+  # Source the main script functions
+  source ./intellij_setup.sh
+  # Call plugin installation directly
+  install_plugin "https://url/to/plugin.jar" "1.0.0" "com.example.pluginid"
+'
+```
+
+## Configuration Breakdown
+
+### Paths Configuration
+
+```bash
+# IntelliJ installation (default paths)
+~/.local/share/JetBrains/IntelliJIdea2025.2      # Installation home
+~/.config/JetBrains/IntelliJIdea2025.2           # Config directory
+~/.config/JetBrains/IntelliJIdea2025.2/plugins   # Installed plugins
+```
+
+### Proxy Setup
+
+**What it does:**
+- Configures HTTP/HTTPS/SOCKS proxy at `127.0.0.1:7777`
+- Updates IDE property files for automatic proxy use
+- Applies to all IDE network requests (plugin downloads, git operations, etc.)
+
+**Configuration in `intellij-config.env`:**
+
+```bash
+PROXY_ENABLED="true"
+PROXY_HOST="127.0.0.1"
+PROXY_PORT="7777"
+PROXY_TYPE="HTTP"           # Change to SOCKS if needed
+```
+
+**To disable proxy:**
+
+```bash
+export PROXY_ENABLED="false"
+bash ./intellij_setup.sh
+```
+
+### GitLab Configuration
+
+**Three authentication methods:**
+
+#### Method 1: Git Credential Store (Recommended)
+
+```bash
+# Set in config
+export GITLAB_TOKEN_STORAGE="git-credential-store"
+export GITLAB_URL="http://mygitlab.com"
+export GITLAB_ACCESS_TOKEN="glpat-xxxxxxxxxxxxx"
+
+# Script automatically:
+# - Creates ~/.git-credentials with encrypted token
+# - Configures git to use credential-store
+# - Sets permissions to 600
+```
+
+#### Method 2: KeePass (Manual)
+
+```bash
+# Set in config
+export GITLAB_TOKEN_STORAGE="keepass"
+export GITLAB_URL="http://mygitlab.com"
+
+# Then manually:
+# 1. Open IntelliJ IDE
+# 2. Settings > Version Control > GitLab
+# 3. Add host: http://mygitlab.com
+# 4. Use KeePass plugin to store credentials
+```
+
+#### Method 3: Environment Variable (Least Secure)
+
+```bash
+export GITLAB_TOKEN_STORAGE="env"
+export GITLAB_ACCESS_TOKEN="glpat-xxxxxxxxxxxxx"
+
+# Token available to IDE but visible in process listings
+# Use only for development/testing
+```
+
+### JVM Memory Tuning (4 CPU, 8GB RAM)
+
+**Current allocation:**
+- Initial Heap (-Xms): **2GB** (faster startup)
+- Maximum Heap (-Xmx): **6GB** (leaves 2GB for OS/container overhead)
+- Garbage Collector: **G1GC** (optimized for containers)
+
+**If IDE is slow:**
+
+```bash
+# Increase max heap (monitor container resources)
+export VM_XMX="7g"      # More aggressive (risky)
+bash ./intellij_setup.sh
+```
+
+**If OOMKilled (out of memory):**
+
+```bash
+# Reduce max heap
+export VM_XMX="5g"      # Conservative
+export VM_XMS="1g"      # Also reduce initial
+bash ./intellij_setup.sh
+```
+
+**Generated file location:**
+```
+~/.config/JetBrains/IntelliJIdea2025.2/idea.vmoptions
+```
+
+View current memory usage in IDE:
+- IDE > View > Appearance > Show Memory Indicator (bottom right)
+
+## Plugin Installation
+
+### Plugin URL Sources
+
+Find plugins at:
+- https://plugins.jetbrains.com
+- Direct download: `https://plugins.jetbrains.com/plugin/download?pluginId=PLUGIN_ID&version=VERSION`
+
+### Install Single Plugin
+
+```bash
+source ./intellij-config.env
+
+install_plugin \
+  "https://plugins.jetbrains.com/plugin/download?pluginId=GitToolBox&version=251.1234" \
+  "251.1234" \
+  "com.gitToolbox"
+```
+
+### Install Multiple Plugins
+
+Edit `intellij-config.env`:
+
+```bash
+export PLUGIN_1="https://plugins.jetbrains.com/plugin/download?pluginId=github&version=251.0|251.0|github"
+export PLUGIN_2="https://plugins.jetbrains.com/plugin/download?pluginId=gitlab&version=251.0|251.0|gitlab"
+export PLUGIN_3="https://plugins.jetbrains.com/plugin/download?pluginId=docker&version=251.0|251.0|docker"
+```
+
+Then run and uncomment the `install_plugins_example()` section in the main script.
+
+## Troubleshooting
+
+### IDE Won't Start
+
+```bash
+# Check for errors
+cat /tmp/intellij_setup.log
+tail -f ~/.config/JetBrains/IntelliJIdea2025.2/system/log/idea.log
+```
+
+### Memory Issues
+
+```bash
+# Monitor container resources during IDE startup
+watch -n 1 'cat /proc/meminfo | head -5'
+
+# Check if running out of memory
+cat /tmp/intellij_gc.log | grep -i "full gc"
+```
+
+### Proxy Not Working
+
+```bash
+# Verify proxy configuration
+cat ~/.config/JetBrains/IntelliJIdea2025.2/idea.properties | grep proxy
+
+# Test proxy connectivity from container
+curl -x http://127.0.0.1:7777 http://example.com
+
+# Restart IDE to apply changes
+```
+
+### GitLab Token Issues
+
+```bash
+# Verify credentials file
+cat ~/.git-credentials
+
+# Test git connectivity
+git clone http://mygitlab.com/your/repo.git
+
+# Re-setup credentials
+export GITLAB_ACCESS_TOKEN="new_token_here"
+source ./intellij-config.env
+bash ./intellij_setup.sh
+```
+
+### Plugin Download Fails
+
+```bash
+# Check download directly
+curl -fsSL -o /tmp/test.jar "https://plugins.jetbrains.com/..."
+
+# Verify proxy is working (if configured)
+curl -x http://127.0.0.1:7777 "https://plugins.jetbrains.com/..."
+
+# Check log file
+cat /tmp/intellij_setup.log | grep -i "plugin"
+```
+
+## Performance Tips
+
+### For Rootless Environment with 4 CPU / 8GB RAM
+
+1. **Disable unnecessary inspections**
+   - Settings > Editor > Inspections > Uncheck unused
+
+2. **Disable breadcrumbs**
+   - Reduces navigation bar overhead
+
+3. **Increase GC pause time** (if experiencing freeze)
+   - Adjust `-XX:MaxGCPauseMillis=50` in idea.vmoptions
+
+4. **Monitor resource usage**
+   - View > Appearance > Show Memory Indicator
+   - Watch for persistent high memory usage
+
+5. **Limit indexed files**
+   - Settings > Project > Directories > Mark directories as excluded
+
+### Container-Specific Optimizations
+
+The script already includes:
+- Container-aware JVM settings (`-XX:+UseContainerSupport`)
+- G1 garbage collector for low latency
+- String deduplication to reduce memory footprint
+- Disabled JDI executable path resolution (not needed in container)
+
+## Verification
+
+### Check Configuration Applied
+
+```bash
+# List all config files created
+ls -la ~/.config/JetBrains/IntelliJIdea2025.2/
+
+# Verify VM options
+cat ~/.config/JetBrains/IntelliJIdea2025.2/idea.vmoptions
+
+# Verify proxy settings
+cat ~/.config/JetBrains/IntelliJIdea2025.2/idea.properties | grep proxy
+
+# Check git configuration
+git config --list --global | grep gitlab
+```
+
+### Test Plugin Installation
+
+```bash
+# List installed plugins
+ls -la ~/.config/JetBrains/IntelliJIdea2025.2/plugins/
+
+# Check plugin directories
