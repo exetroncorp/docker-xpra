@@ -1,0 +1,105 @@
+{
+  // ────────────── FILE SYSTEM OPTIMIZATIONS ──────────────
+  "files.exclude": {
+    "**/.git": true,
+    "**/.gradle": true,
+    "**/.idea": true,
+    "**/.mvn": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/target": true,
+    "**/build": true,
+    "**/out": true,
+    "**/.settings": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/build": true,
+    "**/target": true,
+    "**/out": true,
+    "**/.settings": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/target/**": true,
+    "**/build/**": true,
+    "**/.gradle/**": true
+  },
+  "files.autoSave": "onFocusChange", // avoids constant writes
+  "files.useExperimentalFileWatcher": true, // lower overhead watcher
+
+  // ────────────── UI & EDITOR ──────────────
+  "workbench.tree.indent": 8,
+  "workbench.editor.enablePreview": false,
+  "editor.minimap.enabled": false,
+  "editor.renderWhitespace": "none",
+  "editor.renderControlCharacters": false,
+  "editor.quickSuggestions": false,
+  "editor.suggestOnTriggerCharacters": false,
+  "editor.formatOnSave": false, // turn on manually if needed
+  "breadcrumbs.enabled": false,
+  "explorer.decorations.badges": false,
+  "explorer.decorations.colors": false,
+
+  // ────────────── JAVA LANGUAGE SERVER ──────────────
+  "java.server.launchMode": "Standard",
+  "java.autobuild.enabled": false,
+  "java.max.concurrent.workspace.builds": 1,
+  "java.progressReports.enabled": false,
+  "java.referencesCodeLens.enabled": false,
+  "java.format.enabled": false,
+  "java.showBuildStatusOnStart.enabled": false,
+  "java.import.generatesMetadataFilesAtProjectRoot": false,
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "java.errors.incompleteClasspath.severity": "ignore",
+  "java.trace.server": "off",
+  "java.selectionRange.enabled": false,
+  "java.dependency.syncWithFolderExplorer": false,
+
+  // ────────────── MAVEN ──────────────
+  "maven.executable.path": "/home/youruser/.sdkman/candidates/maven/current/bin/mvn",
+  "maven.settingsFile": "/home/youruser/.m2/settings.xml",
+  "maven.terminal.useJavaHome": true,
+  "maven.pomfile.autoUpdateEffectivePOM": false,
+  "maven.view": "flat", // avoids recursive tree rendering
+
+  // ────────────── EXTENSIONS ──────────────
+  "extensions.autoCheckUpdates": false,
+  "extensions.autoUpdate": false,
+  "workbench.enableExperiments": false,
+  "workbench.settings.enableNaturalLanguageSearch": false,
+
+  // ────────────── TELEMETRY ──────────────
+  "telemetry.telemetryLevel": "off",
+  "redhat.telemetry.enabled": false,
+  "java.completion.filteredTypes": [
+    "java.awt.*",
+    "com.sun.*",
+    "sun.*"
+  ],
+
+  // ────────────── DEBUG ──────────────
+  "java.debug.settings.hotCodeReplace": "auto",
+  "java.debug.settings.forceBuildBeforeLaunch": false,
+  "debug.console.fontSize": 12,
+  "debug.toolBarLocation": "docked",
+
+  // ────────────── TERMINAL ──────────────
+  "terminal.integrated.scrollback": 2000,
+  "terminal.integrated.enablePersistentSessions": false,
+  "terminal.integrated.enableMultiLinePasteWarning": false,
+
+  // ────────────── MISC ──────────────
+  "workbench.startupEditor": "none",
+  "workbench.iconTheme": "none",
+  "update.mode": "none",
+  "git.enabled": false,
+  "scm.alwaysShowRepositories": false,
+  "npm.enableScriptExplorer": false,
+  "npm.autoDetect": "off"
+}
